@@ -1,5 +1,5 @@
 
-```markdown
+
 # STM32 Custom Driver Library
 
 This project provides low-level peripheral drivers for STM32 microcontrollers, specifically targeting:
@@ -12,20 +12,22 @@ This project provides low-level peripheral drivers for STM32 microcontrollers, s
 - STM32F429 / STM32F439  
 
 These are advanced Arm® Cortex®-M4 32-bit microcontrollers from STMicroelectronics, ideal for real-time embedded systems.
-```
+
 
 ## 📁 Project Structure
 
-| Path                  | Description                              |
-|-----------------------|------------------------------------------|
-| `Inc/`                | Public header files                      |
-| `Src/customDriver.c`  | Example usage or test file               |
-| `Src/gpio/`           | GPIO driver implementation               |
-| `Src/tim/`            | Timer driver implementation              |
-| `Debug/`              | Build output (ignored by Git)            |
-| `.gitignore`          | Git ignore rules                         |
+| Path                   | Description                                  |
+|------------------------|----------------------------------------------|
+| `Drivers/gpio/`        | GPIO driver source and header (`gpio.c/h`)   |
+| `Drivers/tim/`         | Timer and PWM driver (`tim.c/h`, `tim_pwm.c/h`) |
+| `Inc/`                 | Public headers |
+| `Src/customDriver.c`   | Main integration test / example runner       |
+| `Src/syscalls.c`       | Newlib syscalls for minimal libc support     |
+| `Src/sysmem.c`         | Heap allocator setup for embedded system     |
+| `examples/example.c`   | LED blink example using custom drivers       |
+| `tests/test_customDriver.c` | Unit/integration test for your drivers |
 
-````
+
 
 ## 🚀 Getting Started
 
@@ -38,16 +40,21 @@ You can integrate this library into an STM32CubeIDE or Makefile-based project. I
 Here is a minimal example demonstrating how to toggle an LED connected to pin **PB2** every second using **TIM2**:
 
 ```c
-#include "gpio/gpio.h"
-#include "tim/tim.h"
+#include "gpio.h"
+#include "tim.h"
 
-void custom_test_gpio_timer(void) {
-    // Enable clock and configure PB2 as output
+/**
+ * @brief Blink LED on PB2 every 1 second using TIM2.
+ */
+int main(void) {
+    // Initialize system clock (in real setup, call HAL_Init and SystemClock_Config if needed)
+
+    // Enable GPIOB clock and initialize PB2 as output
     GPIO_ClockEnable(GPIO_B);
     GPIO_Init(GPIO_B, OUTPUT, PP, PIN_2);
 
-    // Configure TIM2 for 1-second interval (assuming 16 MHz clock)
-    TIM_Init(TIM2_BASE, 16000 - 1, 1000 - 1); // PSC = 15999, ARR = 999
+    // Initialize TIM2 to generate 1s interval (assuming 16 MHz clock)
+    TIM_Init(TIM2_BASE, 16000 - 1, 1000 - 1);  // 1s = (PSC+1)*(ARR+1)/F_CPU
     TIM_Start(TIM2_BASE);
 
     while (1) {
@@ -81,12 +88,10 @@ void custom_test_gpio_timer(void) {
 
 ## 📜 License
 
-MIT License (or choose another if needed)
+MIT License
 
 ---
 
 ## 🤝 Contributions
 
 Feel free to fork the repository, report issues, or submit PRs to enhance functionality and support more peripherals!
-
-```
